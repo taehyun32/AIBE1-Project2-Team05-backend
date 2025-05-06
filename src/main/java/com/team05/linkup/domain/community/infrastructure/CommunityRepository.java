@@ -187,6 +187,9 @@ public interface CommunityRepository extends JpaRepository<Community, String>, C
 """, nativeQuery = true)
     List<Object[]> findByMyLikePosts(@Param("user") String user, @Param("limit") int limit);
 
+    // 수동 매칭 현황 - 재능 기부 게시글
+    List<Community> findByCategoryAndUserNicknameOrderByUpdatedAtDesc(
+            CommunityCategory category, String nickname);
 
 //    QueryDSL 방식으로 변경 (일단 nativeQuery 버전은 주석으로 임시 유지)
 //    // 멘토 마이페이지_매칭 현황 - (인기 QnA 조회 쿼리)

@@ -56,4 +56,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                                                     @Param("providerId") String providerId,
                                                     @Param("interest") Interest interest);
 
+    // 닉네임을 기준으로 사용자와 지역 정보를 조회하는 쿼리
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.area WHERE u.nickname = :nickname")
+    Optional<User> findUserWithAreaByNickname(@Param("nickname") String nickname);
 }

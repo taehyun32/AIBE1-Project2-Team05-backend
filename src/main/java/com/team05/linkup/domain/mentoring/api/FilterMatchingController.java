@@ -4,6 +4,7 @@ import com.team05.linkup.common.dto.ApiResponse;
 import com.team05.linkup.common.dto.UserPrincipal;
 import com.team05.linkup.common.enums.ResponseCode;
 import com.team05.linkup.domain.mentoring.application.FilterMatchingService;
+import com.team05.linkup.domain.mentoring.dto.MentorProfileDTO;
 import com.team05.linkup.domain.user.domain.User;
 import com.team05.linkup.domain.user.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,25 @@ public class FilterMatchingController {
             return ResponseEntity.ok(ApiResponse.error(ResponseCode.INVALID_INPUT_VALUE, ex.getMessage()));
         } catch (Exception ex) {
             logger.error("매칭 생성 중 알 수 없는 오류 발생: {}", ex.getMessage());
+            return ResponseEntity.ok(ApiResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."));
+        }
+    }
+
+    @GetMapping("/{nickname}")
+    @PreAuthorize("hasAuthority('ROLE_MENTEE')")
+    public ResponseEntity<ApiResponse<MentorProfileDTO>> getMentorProfile(@PathVariable String nickname) {
+        Optional<User> userOpt = userRepository.findUserWithAreaByNickname(nickname);
+        if (userOpt.isEmpty())
+            return ResponseEntity.ok(ApiResponse.error(ResponseCode.ENTITY_NOT_FOUND, "멘토 프로필을 찾을 수 없습니다."));
+
+        try {
+            MentorProfileDTO mentorProfile = filterMatchingService.getMentor(userOpt.get());
+            return ResponseEntity.ok(ApiResponse.success(mentorProfile));
+        } catch (IllegalArgumentException ex) {
+            // 잘못된 요청 처리
+            return ResponseEntity.ok(ApiResponse.error(ResponseCode.INVALID_INPUT_VALUE, ex.getMessage()));
+        } catch (Exception ex) {
+            logger.error("멘토 프로필 조회 중 알 수 없는 오류 발생: {}", ex.getMessage());
             return ResponseEntity.ok(ApiResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."));
         }
     }

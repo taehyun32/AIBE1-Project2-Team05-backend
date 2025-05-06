@@ -21,4 +21,8 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
     List<Comment> findByParentCommentIdOrderByCreatedAt(String parentCommentId);
 
     Integer countByCommunityId(String communityId);
+
+    // 수동 매칭 현황 - 재능 기부 게시글 댓글 카운트
+    @Query("SELECT c.communityId, COUNT(c) FROM Comment c WHERE c.communityId IN :communityIds GROUP BY c.communityId")
+    List<Object[]> countCommentsByCommunityIds(@Param("communityIds") List<String> communityIds);
 }
